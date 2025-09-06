@@ -1,4 +1,4 @@
-import twilio from 'twilio';
+const twilio = require('twilio');
 
 // Twilio Client initialisieren
 const client = twilio(
