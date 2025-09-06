@@ -1,5 +1,4 @@
-import { getDueReminders, markReminderSent } from '../lib/database.js';
-import twilio from 'twilio';
+const twilio = require('twilio');
 
 const client = twilio(
   process.env.TWILIO_ACCOUNT_SID,
@@ -13,46 +12,30 @@ export default async function handler(req, res) {
   }
 
   try {
-    console.log('🕐 Checking for due reminders...');
+    console.log('🕐 Cron job running...');
     
-    const dueReminders = await getDueReminders();
+    // Einfacher Test - sende eine Test-Nachricht
+    const testMessage = '🕐 Cron Job Test - ' + new Date().toLocaleString('de-DE');
     
-    if (dueReminders.length === 0) {
-      console.log('✅ No due reminders found');
-      return res.status(200).json({ message: 'No due reminders', count: 0 });
-    }
-
-    console.log(`📋 Found ${dueReminders.length} due reminders`);
-
-    let sentCount = 0;
-    let errorCount = 0;
-
-    for (const reminder of dueReminders) {
+    // Nur senden wenn MY_WHATSAPP_NUMBER gesetzt ist
+    if (process.env.MY_WHATSAPP_NUMBER) {
       try {
-        const response = `⏰ Erinnerung: ${reminder.text}`;
-        
         await client.messages.create({
           from: process.env.TWILIO_WHATSAPP_NUMBER,
-          to: reminder.users.phone,
-          body: response
+          to: process.env.MY_WHATSAPP_NUMBER,
+          body: testMessage
         });
-
-        await markReminderSent(reminder.id);
-        sentCount++;
         
-        console.log(`✅ Sent reminder to ${reminder.users.phone}: ${reminder.text}`);
-        
-      } catch (error) {
-        errorCount++;
-        console.error(`❌ Failed to send reminder ${reminder.id}:`, error);
+        console.log('✅ Test message sent');
+      } catch (sendError) {
+        console.error('❌ Failed to send test message:', sendError);
       }
     }
 
     const result = {
       message: 'Cron job completed',
-      total: dueReminders.length,
-      sent: sentCount,
-      errors: errorCount
+      timestamp: new Date().toISOString(),
+      testMessage: testMessage
     };
 
     console.log('📊 Cron job result:', result);
