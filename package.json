@@ -1,0 +1,23 @@
+{
+  "name": "whatsapp-reminder-bot",
+  "version": "1.0.0",
+  "description": "WhatsApp Reminder Bot MVP",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "echo 'No build step needed'",
+    "start": "echo 'Use vercel dev for local development'"
+  },
+  "dependencies": {
+    "twilio": "^4.19.0",
+    "openai": "^4.20.1",
+    "pg": "^8.11.3",
+    "chrono-node": "^2.7.6"
+  },
+  "devDependencies": {
+    "vercel": "^32.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
