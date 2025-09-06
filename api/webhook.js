@@ -96,43 +96,21 @@ async function handleReminderSimple(messageText) {
       return '❓ Was soll ich dich erinnern? Versuche: "Erinnere mich in 5 Minuten an Müll rausbringen"';
     }
 
-    // Reminder in DB speichern (mit Fehlerbehandlung)
-    try {
-      const { data: reminder, error } = await supabase
-        .from('reminders')
-        .insert([{
-          user_id: 1, // Temporär hardcoded
-          text: reminderText,
-          due_at: dueDate.toISOString(),
-          recurrence: null
-        }])
-        .select()
-        .single();
-
-      if (error) {
-        console.error('Error creating reminder:', error);
-        return '❌ Fehler beim Speichern der Erinnerung.';
-      }
-      
-      console.log('✅ Reminder saved:', reminder);
-    } catch (dbError) {
-      console.error('❌ Database error:', dbError);
-      return '❌ Datenbankfehler. Bitte versuche es nochmal.';
-    }
-    
+    // Erstmal ohne Supabase - nur Echo
     const dateStr = dueDate.toLocaleString('de-DE', { 
       dateStyle: 'short', 
       timeStyle: 'short',
       timeZone: 'Europe/Berlin'
     });
 
-    return `✅ Erinnerung gespeichert!\n\n📝 "${reminderText}"\n⏰ ${dateStr}`;
+    return `✅ Erinnerung erkannt!\n\n📝 "${reminderText}"\n⏰ ${dateStr}\n\n(Noch nicht in DB gespeichert - Test-Modus)`;
 
   } catch (error) {
     console.error('❌ Error handling reminder:', error);
     return '❌ Fehler beim Erstellen der Erinnerung. Bitte versuche es nochmal.';
   }
 }
+
 
 async function getOrCreateUser(phone) {
   try {
