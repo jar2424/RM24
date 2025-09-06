@@ -46,6 +46,12 @@ async function processMessage(from, body, numMedia) {
     const messageText = body.toLowerCase().trim();
     let response = '';
 
+    // Debug: Log the message text
+    console.log('📱 Message text:', messageText);
+    console.log('🔍 Contains "erinnere":', messageText.includes('erinnere'));
+    console.log('🔍 Contains "erinnerung":', messageText.includes('erinnerung'));
+    console.log('🔍 Contains "remind":', messageText.includes('remind'));
+
     // Einfache Reminder-Erkennung (ohne Supabase erstmal)
     if (messageText.includes('erinnere') || messageText.includes('erinnerung') || messageText.includes('remind')) {
       console.log('🔍 Reminder detected, calling handleReminderSimple');
@@ -53,6 +59,7 @@ async function processMessage(from, body, numMedia) {
     }
     // Standard-Antwort
     else {
+      console.log('❌ No reminder detected, using default response');
       response = `🤖 Hallo! Du hast geschrieben: "${body}"\n\nIch bin dein WhatsApp-Reminder-Bot!\n\nVersuche: "Erinnere mich in 5 Minuten an Test"`;
     }
 
