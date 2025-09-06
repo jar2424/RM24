@@ -48,6 +48,7 @@ async function processMessage(from, body, numMedia) {
 
     // Einfache Reminder-Erkennung (ohne Supabase erstmal)
     if (messageText.includes('erinnere') || messageText.includes('erinnerung') || messageText.includes('remind')) {
+      console.log('🔍 Reminder detected, calling handleReminderSimple');
       response = await handleReminderSimple(body);
     }
     // Standard-Antwort
@@ -82,15 +83,22 @@ async function processMessage(from, body, numMedia) {
 
 async function handleReminderSimple(messageText) {
   try {
+    console.log('📝 Processing reminder:', messageText);
+    
     // Datum/Zeit mit Chrono parsen
     const parsed = chrono.parse(messageText);
+    console.log('🕐 Parsed dates:', parsed);
     
     if (parsed.length === 0) {
+      console.log('❌ No date found in message');
       return '❓ Ich konnte keine Zeitangabe erkennen. Versuche: "Erinnere mich in 5 Minuten an..." oder "Erinnere mich morgen um 8 Uhr an..."';
     }
 
     const dueDate = parsed[0].start.date();
     const reminderText = messageText.replace(parsed[0].text, '').trim();
+    
+    console.log('📅 Due date:', dueDate);
+    console.log('📝 Reminder text:', reminderText);
     
     if (!reminderText) {
       return '❓ Was soll ich dich erinnern? Versuche: "Erinnere mich in 5 Minuten an Müll rausbringen"';
@@ -103,7 +111,9 @@ async function handleReminderSimple(messageText) {
       timeZone: 'Europe/Berlin'
     });
 
-    return `✅ Erinnerung erkannt!\n\n📝 "${reminderText}"\n⏰ ${dateStr}\n\n(Noch nicht in DB gespeichert - Test-Modus)`;
+    const response = `✅ Erinnerung erkannt!\n\n📝 "${reminderText}"\n⏰ ${dateStr}\n\n(Noch nicht in DB gespeichert - Test-Modus)`;
+    console.log('✅ Sending response:', response);
+    return response;
 
   } catch (error) {
     console.error('❌ Error handling reminder:', error);
