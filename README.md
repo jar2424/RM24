@@ -10,11 +10,16 @@ npm install
 ```
 
 ### 2. Environment Variables setzen
-Kopiere `env.example` zu `.env` und fülle deine Twilio-Credentials ein:
+Kopiere `env.example` zu `.env` und fülle deine Credentials ein:
 
 ```bash
 cp env.example .env
 ```
+
+Fülle folgende Variablen aus:
+- **Twilio**: Account SID, Auth Token, WhatsApp Nummer
+- **Supabase**: URL, Anon Key, Service Role Key
+- **OpenAI**: API Key (optional, für Sprachnachrichten)
 
 ### 3. Lokal testen
 ```bash
