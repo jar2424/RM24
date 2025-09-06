@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "vercel dev",
-    "build": "echo 'No build step needed'",
+    "build": "echo 'Build completed'",
     "start": "echo 'Use vercel dev for local development'"
   },
   "dependencies": {
