@@ -43,28 +43,16 @@ export default async function handler(req, res) {
 
 async function processMessage(from, body, numMedia) {
   try {
-    // User erstellen oder finden
-    const user = await getOrCreateUser(from);
-    console.log('👤 User:', user);
-
     const messageText = body.toLowerCase().trim();
     let response = '';
 
-    // Reminder-Erkennung
+    // Einfache Reminder-Erkennung (ohne Supabase erstmal)
     if (messageText.includes('erinnere') || messageText.includes('erinnerung') || messageText.includes('remind')) {
-      response = await handleReminder(user, body);
-    }
-    // Listen-Erkennung
-    else if (messageText.includes('liste') || messageText.includes('hinzufügen') || messageText.includes('füge')) {
-      response = await handleList(user, body);
-    }
-    // Hilfe
-    else if (messageText.includes('hilfe') || messageText.includes('help')) {
-      response = getHelpMessage();
+      response = await handleReminderSimple(body);
     }
     // Standard-Antwort
     else {
-      response = `🤖 Hallo! Du kannst mir sagen:\n\n• "Erinnere mich in 5 Minuten an Müll rausbringen"\n• "Füge Milch zur Einkaufsliste hinzu"\n• "Zeige mir meine Einkaufsliste"\n• "Hilfe" für mehr Befehle`;
+      response = `🤖 Hallo! Du hast geschrieben: "${body}"\n\nIch bin dein WhatsApp-Reminder-Bot!\n\nVersuche: "Erinnere mich in 5 Minuten an Test"`;
     }
 
     // Antwort senden
@@ -89,6 +77,60 @@ async function processMessage(from, body, numMedia) {
     } catch (sendError) {
       console.error('❌ Failed to send error message:', sendError);
     }
+  }
+}
+
+async function handleReminderSimple(messageText) {
+  try {
+    // Datum/Zeit mit Chrono parsen
+    const parsed = chrono.parse(messageText);
+    
+    if (parsed.length === 0) {
+      return '❓ Ich konnte keine Zeitangabe erkennen. Versuche: "Erinnere mich in 5 Minuten an..." oder "Erinnere mich morgen um 8 Uhr an..."';
+    }
+
+    const dueDate = parsed[0].start.date();
+    const reminderText = messageText.replace(parsed[0].text, '').trim();
+    
+    if (!reminderText) {
+      return '❓ Was soll ich dich erinnern? Versuche: "Erinnere mich in 5 Minuten an Müll rausbringen"';
+    }
+
+    // Reminder in DB speichern (mit Fehlerbehandlung)
+    try {
+      const { data: reminder, error } = await supabase
+        .from('reminders')
+        .insert([{
+          user_id: 1, // Temporär hardcoded
+          text: reminderText,
+          due_at: dueDate.toISOString(),
+          recurrence: null
+        }])
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error creating reminder:', error);
+        return '❌ Fehler beim Speichern der Erinnerung.';
+      }
+      
+      console.log('✅ Reminder saved:', reminder);
+    } catch (dbError) {
+      console.error('❌ Database error:', dbError);
+      return '❌ Datenbankfehler. Bitte versuche es nochmal.';
+    }
+    
+    const dateStr = dueDate.toLocaleString('de-DE', { 
+      dateStyle: 'short', 
+      timeStyle: 'short',
+      timeZone: 'Europe/Berlin'
+    });
+
+    return `✅ Erinnerung gespeichert!\n\n📝 "${reminderText}"\n⏰ ${dateStr}`;
+
+  } catch (error) {
+    console.error('❌ Error handling reminder:', error);
+    return '❌ Fehler beim Erstellen der Erinnerung. Bitte versuche es nochmal.';
   }
 }
 
