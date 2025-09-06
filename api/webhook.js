@@ -1,4 +1,4 @@
-import twilio from 'twilio';
+const twilio = require('twilio');
 
 // Twilio Client initialisieren
 const client = twilio(
@@ -6,7 +6,7 @@ const client = twilio(
   process.env.TWILIO_AUTH_TOKEN
 );
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   // Nur POST-Requests erlauben
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
