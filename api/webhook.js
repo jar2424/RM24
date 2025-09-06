@@ -113,6 +113,23 @@ async function handleReminder(user, messageText) {
     // Reminder in DB speichern
     const reminder = await createReminder(user.id, reminderText, dueDate.toISOString(), recurrence);
     
+    // Twilio Scheduled Message senden
+    try {
+      const response = `⏰ Erinnerung: ${reminderText}`;
+      
+      await client.messages.create({
+        from: process.env.TWILIO_WHATSAPP_NUMBER,
+        to: user.phone,
+        body: response,
+        scheduleDeliveryTime: dueDate
+      });
+      
+      console.log('✅ Scheduled message created for:', dueDate);
+    } catch (scheduleError) {
+      console.error('❌ Error scheduling message:', scheduleError);
+      // Fallback: In DB speichern für später
+    }
+    
     const dateStr = dueDate.toLocaleString('de-DE', { 
       dateStyle: 'short', 
       timeStyle: 'short',
